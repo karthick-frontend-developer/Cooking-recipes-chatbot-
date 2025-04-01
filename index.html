@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cooking Recipe Chatbot</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin: 20px; background-clip: url("Aesthetic Anime Cooking「4K 60FPS」(2K_60FPS) (1).webm");object-fit: cover;}
+        input { padding: 10px; width: 80%; }
+        button { padding: 10px; cursor: pointer; }
+        .chatbox { border: 1px solid #ddd; padding: 10px; width: 50%; margin: auto; }
+        .message { padding: 5px; margin: 5px; border-radius: 5px; }
+        .user { background: #d1f7c4; text-align: right; }
+        .bot { background: #f0f0f0; text-align: left; }
+    </style>
+</head>
+<body>
+    <h2>🍳 Cooking Recipe Chatbot</h2>
+    <div class="chatbox" id="chatbox">
+        <div class="message bot">Hello! Enter ingredients, and I'll suggest recipes! 🍽️</div>
+    </div>
+    <input type="text" id="userInput" placeholder="Enter ingredients (e.g., chicken, tomato)">
+    <button onclick="sendMessage()">Send</button>
+
+    <script>
+        const API_KEY = "1d36a161bfe24eac8e85b9520c383657"; // Replace with your Spoonacular API key
+        const chatbox = document.getElementById("chatbox");
+
+        function sendMessage() {
+            const input = document.getElementById("userInput").value;
+            if (!input) return;
+
+            addMessage(input, "user");
+
+            getRecipe(input);
+
+            document.getElementById("userInput").value = "";
+        }
+
+        function addMessage(text, sender) {
+            const messageDiv = document.createElement("div");
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = text;
+            chatbox.appendChild(messageDiv);
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        async function getRecipe(ingredients) {
+            const url = `https://api.spoonacular.com/recipes/findByIngredients?ingredients=${ingredients}&number=1&apiKey=${API_KEY}`;
+
+            try {
+                const response = await axios.get(url);
+                if (response.data.length === 0) {
+                    addMessage("❌ No recipes found. Try different ingredients!", "bot");
+                    return;
+                }
+
+                const recipe = response.data[0];
+                const recipeInfo = `
+                    <strong>🍽️ Recipe:</strong> ${recipe.title} <br>
+                    <img src="${recipe.image}" width="150"><br>
+                    <button onclick="getInstructions(${recipe.id})">📖 Get Instructions</button>
+                `;
+                addMessage(recipeInfo, "bot");
+
+            } catch (error) {
+                addMessage("❌ Error fetching recipe. Try again!", "bot");
+                console.error(error);
+            }
+        }
+
+        async function getInstructions(recipeId) {
+            const url = `https://api.spoonacular.com/recipes/${recipeId}/information?apiKey=${API_KEY}`;
+
+            try {
+                const response = await axios.get(url);
+                const recipe = response.data;
+                let steps = recipe.analyzedInstructions[0]?.steps.map(step => `${step.number}. ${step.step}`).join("<br>") || "No instructions available.";
+
+                addMessage(`<strong>👨‍🍳 Instructions for ${recipe.title}:</strong><br>${steps}`, "bot");
+            } catch (error) {
+                addMessage("❌ Error fetching instructions.", "bot");
+                console.error(error);
+            }
+        }
+    </script>
+
+</body>
+</html>
