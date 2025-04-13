@@ -249,7 +249,6 @@ body::-webkit-scrollbar
         width: 90%;
         right: 15px;
         padding: 5px 10px;
-        height: 28px;
     }
     .bot-msg1
     {
@@ -261,7 +260,6 @@ body::-webkit-scrollbar
     {
         font-size: 10.5px;
         width: 90%;
-        height: 28px;
         left: -10px;
         padding: 5px 10px;
         padding-left: 10px;
